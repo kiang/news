@@ -2,13 +2,14 @@
 
 include __DIR__ . '/config.php';
 $listFile = __DIR__ . '/cache/list';
-$filePath = __DIR__ . '/news';
-if (!file_exists($listFile)) {
+$filePath = __DIR__ . '/cache/news';
+if (!file_exists($listFile) || date('Ymd', filemtime($listFile)) !== date('Ymd')) {
     file_put_contents($listFile, file_get_contents($listUrl));
 }
 $list = file_get_contents($listFile);
 $maxUrlLength = 0;
 
+$newFiles = array();
 $pos = strpos($list, 'href="');
 while (false !== $pos) {
     $pos += 6;
@@ -26,9 +27,11 @@ while (false !== $pos) {
             mkdir(dirname($targetFile), 0777, true);
         }
         if (!file_exists($targetFile) || filesize($targetFile) === 0) {
+            $newFiles[] = $targetFile;
             echo "getting {$urlParts['dirname']}/{$urlParts['filename']}.gz?dl=1\n";
             file_put_contents($targetFile, file_get_contents("{$urlParts['dirname']}/{$urlParts['filename']}.gz?dl=1"));
         }
     }
     $pos = strpos($list, 'href="', $posEnd);
 }
+file_put_contents("{$filePath}/newfiles", implode("\n", $newFiles));

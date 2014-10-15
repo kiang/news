@@ -38,8 +38,8 @@ def main():
     pattern_fn = 'cache/pattern.txt'
     with file(pattern_fn, 'w') as f:
         f.write(pattern)
-
-    for path in glob.glob('cache/news/*/*/*.gz'):
+    lines = [line.strip() for line in open('cache/news/newfiles')]
+    for path in lines:
         t0 = time.time()
 
         # don't use .splitlines() due to U+2028
