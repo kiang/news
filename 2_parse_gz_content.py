@@ -40,6 +40,7 @@ def main():
         f.write(pattern)
     lines = [line.strip() for line in open('cache/news/newfiles')]
     for path in lines:
+    #for path in glob.glob('cache/news/*/*/*.gz'):
         t0 = time.time()
 
         # don't use .splitlines() due to U+2028
