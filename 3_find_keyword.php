@@ -4,6 +4,16 @@ if (empty($argv[1])) {
     die('please input keyword');
 }
 
+$moreKeywords = array();
+foreach ($argv AS $k => $v) {
+    if ($k > 1) {
+        $v = trim($v);
+        if (!empty($v)) {
+            $moreKeywords[] = $v;
+        }
+    }
+}
+
 $outputPath = __DIR__ . '/cache/output';
 if (!file_exists($outputPath)) {
     mkdir($outputPath, 0777, true);
@@ -42,9 +52,17 @@ foreach (glob(__DIR__ . '/cache/news/*/*/*.gz') AS $gzFile) {
             $body = strip_tags(trim(str_replace(array('"', '\\n'), array('', ' '), $file->current())));
             if (substr($meta, 0, 1) === '{') {
                 $meta = json_decode($meta);
-                fputcsv($result, array(
-                    date('Y-m-d H:i:s', $meta->created_at), $title, $meta->url, $body
-                ));
+                $moreKeywordsCheck = true;
+                foreach ($moreKeywords AS $moreKeyword) {
+                    if (false === strpos($title, $moreKeyword)) {
+                        $moreKeywordsCheck = false;
+                    }
+                }
+                if ($moreKeywordsCheck) {
+                    fputcsv($result, array(
+                        date('Y-m-d H:i:s', $meta->created_at), $title, $meta->url, $body
+                    ));
+                }
             }
         }
     }
