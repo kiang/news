@@ -15,7 +15,7 @@ while (false !== $pos) {
     $pos += 6;
     $posEnd = strpos($list, '"', $pos);
     $url = substr($list, $pos, $posEnd - $pos);
-    if (false !== strpos($url, 'dl=0')) {
+    if ((false !== strpos($url, 'dl=0')) && (false === strpos($url, '-diff'))) {
         $urlParts = pathinfo($url);
         $dateParts = array(
             substr($urlParts['filename'], 0, 4),
