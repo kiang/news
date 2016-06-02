@@ -3,10 +3,20 @@
 include __DIR__ . '/config.php';
 $listFile = __DIR__ . '/cache/list';
 $filePath = __DIR__ . '/cache/news';
-if (!file_exists($listFile) || date('Ymd', filemtime($listFile)) !== date('Ymd')) {
-    file_put_contents($listFile, file_get_contents($listUrl));
+$lastYear = 0;
+$lastYearUrl = '';
+
+foreach(glob($filePath . '/*') AS $yPath) {
+  if(is_dir($yPath)) {
+    $year = substr($yPath, strrpos($yPath, '/') + 1);
+    if($year > $lastYear) {
+      $lastYear = $year;
+      $lastYearUrl = $listUrl . $year . '/';
+    }
+  }
 }
-$list = file_get_contents($listFile);
+
+$list = file_get_contents($lastYearUrl);
 $maxUrlLength = 0;
 
 $newFiles = array();
@@ -15,12 +25,11 @@ while (false !== $pos) {
     $pos += 6;
     $posEnd = strpos($list, '"', $pos);
     $url = substr($list, $pos, $posEnd - $pos);
-    if ((false !== strpos($url, 'dl=0')) && (false === strpos($url, '-diff'))) {
-        $urlParts = pathinfo($url);
+    if (false === strpos($url, '-diff')) {
         $dateParts = array(
-            substr($urlParts['filename'], 0, 4),
-            substr($urlParts['filename'], 4, 2),
-            substr($urlParts['filename'], 6, 2),
+            substr($url, 0, 4),
+            substr($url, 4, 2),
+            substr($url, 6, 2),
         );
         $targetFile = "{$filePath}/" . implode('/', $dateParts) . ".gz";
         if (!file_exists(dirname($targetFile))) {
@@ -28,8 +37,9 @@ while (false !== $pos) {
         }
         if (!file_exists($targetFile) || filesize($targetFile) === 0) {
             $newFiles[] = $targetFile;
-            echo "getting {$urlParts['dirname']}/{$urlParts['filename']}.gz?dl=1\n";
-            file_put_contents($targetFile, file_get_contents("{$urlParts['dirname']}/{$urlParts['filename']}.gz?dl=1"));
+            $url = $lastYearUrl . $url;
+            echo "getting {$url}\n";
+            file_put_contents($targetFile, file_get_contents($url));
         }
     }
     $pos = strpos($list, 'href="', $posEnd);
