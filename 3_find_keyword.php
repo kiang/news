@@ -19,7 +19,7 @@ if (!file_exists($outputPath)) {
     mkdir($outputPath, 0777, true);
 }
 
-$result = fopen($outputPath . '/result.csv', 'w');
+$result = fopen($outputPath . '/' . $argv[1] . '.csv', 'w');
 fputcsv($result, array(
     '日期', '標題', '網址', '內容'
 ));
