@@ -7,7 +7,8 @@ $lastYear = 0;
 $lastYearUrl = '';
 
 for($i = 2013; $i <= date('Y'); $i ++) {
-  $list = file_get_contents($listUrl . $i . '/');
+  $lastYearUrl = $listUrl . $i . '/';
+  $list = file_get_contents($lastYearUrl);
   $maxUrlLength = 0;
 
   $pos = strpos($list, 'href="');
